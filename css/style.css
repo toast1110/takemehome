@@ -1,0 +1,72 @@
+*{
+    box-sizing: border-box;
+}
+.col-sum{
+    height: 140px;
+    margin: 5px
+}
+.row-sum {
+    margin-left: 30px;
+    margin-right: 30px;
+    height:inherit;
+}
+.col-main{
+    height: 480px;
+}
+.col-sum3{
+    width: 33.33%;
+    height:inherit;
+    float: left;
+/*    padding:5px;*/
+}
+.block{
+    height: inherit;
+    border-radius: 5px;
+    margin-left: 3px;
+    margin-right: 3px;
+    padding: 10px;
+}
+.block-left{
+    background-color: #357ebd;
+}
+.block-middle{
+    background-color: #26c281; 
+}
+.block-right{
+    background-color: #d95043;
+}
+.value{
+    color:white;
+    font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 40px;
+}
+
+.col-main{
+    height:480px
+}
+.row-main{
+    margin-left: 30px;
+    margin-right: 30px;
+    height:inherit;
+}
+.col-mainPhoto{
+    width: 15%;
+    float: left;
+    height:inherit;
+}
+.col-map{
+    width: 40%;
+    float: left;
+    height: inherit;
+}
+.col-drilldown{
+    width: 45%;
+    float: left;
+    height: inherit;
+}
+.bubble{
+    height:240px;
+}
+.barChart{
+    height:240px;
+}
