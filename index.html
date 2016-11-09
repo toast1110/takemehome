@@ -5,6 +5,7 @@
     <title>Take Me Home</title>
     <script src="https://d3js.org/d3.v3.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>    
+    <script src="js/topojson.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -51,7 +52,8 @@
             </div>
             <div class="col-map">
                 <div class="block">
-                    Map
+                    <svg id="mapChart" width="400" height="480"></svg>
+                    
                 </div>
             </div>
             <div class="col-drilldown">
@@ -72,7 +74,10 @@
         </div>
         
     </div>
-
+    <div id="tooltip" class="hidden">
+        <p><strong id="city">Hello</strong></p>
+        <p id="industry">tooltip</p>
+    </div>
     <script src="js/main.js"></script>
 </body>
 </html>
