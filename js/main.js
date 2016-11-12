@@ -1,6 +1,6 @@
 var animalData = []
 
-d3.json("animalOpenData.json", function (dataSet) {
+d3.json("animalOpenData1113.json", function (dataSet) {
     updateValue(".block-left", animalCnt(dataSet));
     animalData = dataSet;
 
@@ -45,7 +45,7 @@ d3.json("animalOpenData.json", function (dataSet) {
     //Ｍap Chart
     d3.json("topoTaiwan.json", function (topoData) {
         bindMap(topoData, cityAnimalCnt);
-        renderMap(cityAnimalCnt);
+        renderMap(cityAnimalCnt,dataSet);
         console.log("renderAlready");
     });
     
@@ -66,8 +66,7 @@ d3.json("animalOpenData.json", function (dataSet) {
     }
     var quarterAnimalCnt = quarterAnimalCnts(dataSet);
     console.log(quarterAnimalCnt);
-//    bindBar(dataSet);
-//    renderBar(dataSet);
+    bindBar(quarterAnimalCnt);
     
 });
 
@@ -93,6 +92,9 @@ function quarterAnimalCnts(dataSet){
             'quarterRank':parseInt(year+q),
             'quarter':filterQuarterArr[i],
             'cnt':0,
+            'dogCnt':0,
+            'catCnt':0,
+            'otherCnt':0,
             'barObj':[{
                 "cate":"狗",
                 "cnt":0
@@ -120,14 +122,23 @@ function quarterAnimalCnts(dataSet){
             switch (animalType) {
                 case '狗':
                     quarterAnimalCnt[p].barObj[0].cnt = quarterAnimalCnt[p].barObj[0].cnt+1;
+                    quarterAnimalCnt[p].dogCnt = quarterAnimalCnt[p].dogCnt+1;
                     break;
                 case '貓':
                     quarterAnimalCnt[p].barObj[1].cnt = quarterAnimalCnt[p].barObj[1].cnt+1;
+                    quarterAnimalCnt[p].catCnt = quarterAnimalCnt[p].catCnt+1;
                     break;
                 default:
                     quarterAnimalCnt[p].barObj[2].cnt = quarterAnimalCnt[p].barObj[2].cnt+1;
+                    quarterAnimalCnt[p].otherCnt = quarterAnimalCnt[p].otherCnt+1;
             }   
         }
+    }
+    quarterAnimalCnt = quarterAnimalCnt.sort(function (a,b){
+        return d3.ascending(a.quarterRank, b.quarterRank);
+    })
+    for(var i=0; i<quarterAnimalCnt.length; i++){
+        quarterAnimalCnt[i].index = i;
     }
     return quarterAnimalCnt;
 }
@@ -200,7 +211,7 @@ function killThisMonth(data) {
 
 function lastDay() {
     var today = new Date();
-    today.setDate(today.getDate() - 1);
+    today.setDate(today.getDate() - 2);
     var lastDay = new Date(today);
 
     var dd = lastDay.getDate();
@@ -238,7 +249,7 @@ function unique(array) {
 
 
 
-function renderMap(dataSet) {
+function renderMap(dataSet,allDataSet) {
     var fScale = d3.scale.category20c();
     var color = d3.scale
         .linear()
@@ -262,17 +273,7 @@ function renderMap(dataSet) {
             }
         })
         .on("click", function (d) {
-            //        var coordinates = d3.mouse(this);
-            //        var x= coordinates[0];
-            //        var y= coordinates[1];
-            //        var tooltip = d3.select("#tooltip")
-            //                        .style({
-            //                            left: (x+192+10)+"px",
-            //                            top: (y+150+10)+"px"
-            //                        });
-            //        tooltip.select("#city").text(d.properties.C_Name);
-            //        tooltip.select("#industry").text(d.industry);
-            //        d3.select("#tooltip").classed("hidden",false); 
+            update(allDataSet,d.properties.C_Name);
         })
         .on("mouseover", function (d) {
             d3.select(this).attr({
@@ -392,8 +393,86 @@ function donutChart(pieData) {
 
 
 function bindBar(dataSet){
-    var selection = d3.select("#barChart").selectAll("rect").data(dataSet);
+    var animalCate = ["dogCnt","catCnt","otherCnt"];
+    var layers = d3.layout.stack()(animalCate.map(function(c) {
+        return dataSet.map(function(d) {
+            return {x: d.quarter, y: d[c]};
+        });
+    }));
     
-    selection.enter().append("rect");
-    selection.exit().remove();
+    var x = d3.scale.ordinal()
+            .domain(layers[0].map(function(d){
+                console.log(d.x);
+                return d.x;
+            }))
+            .rangeRoundBands([40, 400]);
+    var y = d3.scale.linear()
+            .domain([0,d3.max(layers[layers.length-1],function(d){
+                return d.y0 + d.y;
+            })]).nice()
+            .rangeRound([60, 460]);
+    
+    
+    var layer = d3.select("#barChart")
+                .selectAll(".layer")
+                .data(layers).enter().append("g")
+                .attr("class","layer")
+                .style("fill",function(d,i){
+                    var color = ["#F7882F","#F7C331","#F98948"];
+                    return color[i];
+                });
+    layer.selectAll("rect").data(function(d){return d;})
+        .enter().append("rect")
+        .attr({
+            x:function(d){
+                return y(d.y0);
+            },
+            y:function(d){return x(d.x);},
+            height: x.rangeBand()-1,
+            width: function(d){return y(d.y + d.y0)-y(d.y0)}
+        });
+    console.log(layers[0]);
+    d3.select("#barChart")
+      .selectAll("text")
+      .data(layers[0]).enter()
+      .append("text")
+//      .exit().remove()
+      .attr({
+        x: 5,
+//        y: function(d,i){
+//            console.log(i);
+//            return 66+27*i;
+//        },
+        y:function(d){return x(d.x)+20;},
+        fill:"#282828",
+//        stroke: "#FFFFFF",
+        "font-size": 20,
+        "font-family": "arial"
+      })
+      .text(function(d){return d.x});
+}
+
+function update(dataSet, filteredName){
+                
+    var filtered_dataSet = dataSet.filter(function(d){
+        return d.shelter_address.substring(0,3)===filteredName;
+    })
+    
+    for(var i=0; i<filtered_dataSet.length; i++){
+        var month = filtered_dataSet[i].animal_createtime.substring(5,7);
+        var year = filtered_dataSet[i].animal_createtime.substring(2,4);
+        var monthNum = parseInt(month);
+        if (monthNum<4){
+            filtered_dataSet[i].yearQ = "Q1'"+year;
+        }else if(monthNum<7){
+            filtered_dataSet[i].yearQ = "Q2'"+year;
+        }else if(monthNum<10){
+            filtered_dataSet[i].yearQ = "Q3'"+year;
+        }else{
+            filtered_dataSet[i].yearQ = "Q4'"+year;
+        }
+    }
+    var quarterAnimalCnt = quarterAnimalCnts(filtered_dataSet);
+    console.log("update");
+    bindBar(quarterAnimalCnt);
 }
