@@ -1,20 +1,26 @@
 <!doctype html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>Take Me Home</title>
     <script src="https://d3js.org/d3.v3.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>    
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
     <script src="js/topojson.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
+
 </head>
+
 <body>
     <div class="col-sum">
         <div class="row-sum">
             <div class="col-sum3">
                 <div class="block block-left">
                     <div class="value">
-                        0    
+                        0
+                    </div>
+                    <div class="icon">
+                        <img src="img/pic1.png" width="60" height="60">
                     </div>
                     <div class="header">
                         全台收容總數
@@ -26,6 +32,9 @@
                     <div class="value">
                         0
                     </div>
+                    <div class="icon">
+                        <img src="img/pic2.png" width="60" height="60">
+                    </div>
                     <div class="header">
                         昨日收容數量
                     </div>
@@ -35,6 +44,9 @@
                 <div class="block block-right">
                     <div class="value">
                         0
+                    </div>
+                    <div class="icon">
+                        <img src="img/pic3.png" width="60" height="60">
                     </div>
                     <div class="header">
                         本月待安樂死
@@ -53,32 +65,33 @@
             <div class="col-map">
                 <div class="block">
                     <svg id="mapChart" width="400" height="480"></svg>
-                    
+
                 </div>
             </div>
             <div class="col-drilldown">
                 <div class="block">
-                Drill down
-                <div class="bubble">
-                    <div class="block">
-                        Bubble
+                    Drill down
+                    <div class="bubble">
+                        <div class="block">
+                            Bubble
+                        </div>
                     </div>
-                </div>
-                <div class="barChart">
-                    <div class="block">
-                        BarChart
+                    <div class="barChart">
+                        <div class="block">
+                            BarChart
+                        </div>
                     </div>
-                </div>
                 </div>
             </div>
         </div>
-        
+
     </div>
     <div id="tooltip" class="hidden">
         <p><strong id="city">Hello</strong></p>
-<!--        <p id="industry">tooltip</p>-->
+        <!--        <p id="industry">tooltip</p>-->
         <svg id="pieChart" width="100" height="100"></svg>
     </div>
     <script src="js/main.js"></script>
 </body>
+
 </html>
