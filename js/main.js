@@ -47,7 +47,89 @@ d3.json("animalOpenData.json", function(dataSet){
         renderMap(cityAnimalCnt);
         console.log("renderAlready");
     });
+    
+    //Bar Chart
+    for(var i=0; i<dataSet.length; i++){
+        var month = dataSet[i].animal_createtime.substring(5,7);
+        var year = dataSet[i].animal_createtime.substring(2,4);
+        var monthNum = parseInt(month);
+        if (monthNum<4){
+            dataSet[i].yearQ = "Q1'"+year;
+        }else if(monthNum<7){
+            dataSet[i].yearQ = "Q2'"+year;
+        }else if(monthNum<10){
+            dataSet[i].yearQ = "Q3'"+year;
+        }else{
+            dataSet[i].yearQ = "Q4'"+year;
+        }
+    }
+    var quarterAnimalCnt = quarterAnimalCnts(dataSet);
+    console.log(quarterAnimalCnt);
+//    bindBar(dataSet);
+//    renderBar(dataSet);
+    
 });
+
+
+function quarterAnimalCnts(dataSet){
+    //quarterArr: 每一季別陣列(包含重複項目)           
+    var quarterArr = dataSet.map(function(d){
+        return d.yearQ;
+    });
+    //uniquecQuarterArr: 每一季別陣列(無重複項目) 
+    var uniqueQuarterArr = unique(quarterArr);
+    //filterQuarterArr: 每一季別陣列(去除空白項目) 
+    var filterQuarterArr = uniqueQuarterArr.filter(function(d){
+        return d!=""; 
+    });
+    //quarterAnimalCnt: 每一季的流浪動物個數陣列
+    var quarterAnimalCnt = [];
+    for (var i=0; i<filterQuarterArr.length; i++){
+        var year = filterQuarterArr[i].substring(3,5);
+        var q = filterQuarterArr[i].substring(1,2);
+        quarterAnimalCnt.push({
+            'index':i,
+            'quarterRank':parseInt(year+q),
+            'quarter':filterQuarterArr[i],
+            'cnt':0,
+            'barObj':[{
+                "cate":"狗",
+                "cnt":0
+            },{
+                "cate":"貓",
+                "cnt":0
+            },{
+                "cate":"其他",
+                "cnt":0
+            }]
+        });
+    }
+    //計算每季流浪動物數量
+    for(var i=0; i<dataSet.length; i++){
+        var thisQuarter = dataSet[i].yearQ;
+        var animalType = dataSet[i].animal_kind;
+        
+        var quarterObj = quarterAnimalCnt.filter(function(d){
+            return d.quarter===thisQuarter;
+        })[0];
+        if(typeof quarterObj !== "undefined"){
+            p = quarterObj.index;
+            quarterAnimalCnt[p].cnt = quarterAnimalCnt[p].cnt+1;
+            
+            switch (animalType) {
+                case '狗':
+                    quarterAnimalCnt[p].barObj[0].cnt = quarterAnimalCnt[p].barObj[0].cnt+1;
+                    break;
+                case '貓':
+                    quarterAnimalCnt[p].barObj[1].cnt = quarterAnimalCnt[p].barObj[1].cnt+1;
+                    break;
+                default:
+                    quarterAnimalCnt[p].barObj[2].cnt = quarterAnimalCnt[p].barObj[2].cnt+1;
+            }   
+        }
+    }
+    return quarterAnimalCnt;
+}
 
 function cityAnimalCnts(dataSet, cityAnimalCnt){
     for(var i=0; i<dataSet.length; i++){
@@ -144,7 +226,6 @@ function unique(array){
 }
 
 
-
 function renderMap(dataSet){
     var fScale = d3.scale.category20c();
     var color = d3.scale
@@ -156,7 +237,7 @@ function renderMap(dataSet){
                         return +d.cnt;
                     })])
               .range(['#ffc4c4','#ed4444']);
-    console.log(color(50));
+
     
     d3.selectAll("path")
     .attr({
@@ -287,4 +368,12 @@ function donutChart(pieData){
           })
             
     }
+}
+
+
+function bindBar(dataSet){
+    var selection = d3.select("#barChart").selectAll("rect").data(dataSet);
+    
+    selection.enter().append("rect");
+    selection.exit().remove();
 }

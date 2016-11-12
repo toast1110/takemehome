@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Animal</title>
+    <script src="https://d3js.org/d3.v3.js"></script>
+    <style>
+
+    </style>
+</head>
+
+<body>
+
+    <script>
+        var w = 800;
+        var h = 600;
+        var padding = 80;
+        var count = 0;
+
+        function unique(array) {
+            var n = [];
+            for (var i = 0; i < array.length; i++) {
+                if (n.indexOf(array[i]) == -1) {
+                    n.push(array[i]);
+                }
+            }
+            return n;
+        }
+        //2. 建立svg()畫布環境
+        svg();
+
+        //3. 用d3讀取json
+        d3.json("animalOpenData.json", function (dataSet) {
+            for (var i = 0; i < dataSet.length; i++) {
+                var month = dataSet[i].animal_createtime.substring(0, 7);
+                dataSet[i].month = month;
+            }
+            bind(dataSet);
+            render(dataSet);
+
+            var createmonth = d3.nest().key(function (d) {
+                return d.month;
+            }).entries(dataSet);
+
+        });
+
+        function svg() {
+            d3.select("body").append("svg").attr({
+                width: w,
+                height: h
+            });
+            d3.select("svg").append("g").append("rect").attr({
+                width: "100%",
+                height: "100%",
+                fill: "white"
+            });
+
+        }
+        //4. 建立bind()
+
+        function bind(dataSet) {
+            var selection = d3.select("svg")
+                .selectAll("rect")
+                .data(dataSet);
+
+            selection.enter().append("rect");
+            selection.exit().remove();
+        }
+
+        function render(dataSet) {
+            var xScale = d3.time.scale()
+                .domain([new Date(d3.min(dataSet, function (d) {
+                    return d.month
+                })), new Date(d3.max(dataSet, function (d) {
+                    return d.month
+                }))])
+                .range([padding, w - padding]);
+
+            var yScale = d3.scale.linear()
+                .domain([d3.min(dataSet, function (d) {
+                    return d.
+                })])
+                .range([h - padding, padding]);
+
+            var fScale = d3.scale.category20();
+
+            var yAxis = d3.svg.axis().scale(yScale).orient("left");
+            var xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+
+            d3.selectAll("rect").attr({
+                x: 200,
+                y: 100,
+                height: 200,
+                width: 300
+            });
+
+
+        }
+    </script>
+
+</body>
+
+</html>
