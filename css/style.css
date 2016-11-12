@@ -3,7 +3,7 @@
 }
 
 body {
-    background: #eee;
+    background: #DCC7AA;
 }
 
 .col-sum {
@@ -39,15 +39,15 @@ body {
 }
 
 .block-left {
-    background-color: #C7D341;
+    background-color: #684E32;
 }
 
 .block-middle {
-    background-color: #26c281;
+    background-color: #F98948;
 }
 
 .block-right {
-    background-color: #d95043;
+    background-color: #9B8816;
 }
 
 .value {
@@ -57,7 +57,12 @@ body {
     height: 80px;
     float: left;
     color: white;
-    width: 100%;
+    width: 70%;
+}
+
+.icon {
+    float: right;
+    width: 30%;
 }
 
 .header {
@@ -115,12 +120,12 @@ body {
     position: absolute;
     /* left: 20px; */
     /* top:  100px; */
-    background: #fff;
+    background: #FFF4F2;
     width: 120px;
     height: 170px;
     padding: 0px 10px;
     border-radius: 5px;
-    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 5px 5px 10px #D6B3AC;
 }
 
 #tooltip.hidden {
