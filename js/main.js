@@ -1,16 +1,13 @@
 var animalData = []
 
 d3.json("animalOpenData.json", function(dataSet){
-    console.log("Input Data");
     updateValue(".block-left", animalCnt(dataSet));
     animalData = dataSet;
     
     var aLValue = acceptLastday(dataSet);
-    console.log(aLValue);
     updateValue(".block-middle", aLValue);
     
     var kTMValue = killThisMonth(dataSet);
-    console.log(kTMValue);
     updateValue(".block-right", kTMValue);
     
     //cityArr: 縣市別陣列(包含重複項目)           
@@ -30,21 +27,24 @@ d3.json("animalOpenData.json", function(dataSet){
             'index':i,
             'city':filterCityArr[i],
             'cnt':0,
-            'pieObj':{
-                'dog':0,
-                'cat':0,
-                'other':0
-            }
+            'pieObj':[{
+                "cate":"狗",
+                "cnt":0
+            },{
+                "cate":"貓",
+                "cnt":0
+            },{
+                "cate":"其他",
+                "cnt":0
+            }]
         });
     }
-    console.log(cityAnimalCnt);
     cityAnimalCnt = cityAnimalCnts(dataSet, cityAnimalCnt);
-    console.log(cityAnimalCnt);
     
     //Ｍap Chart
     d3.json("topoTaiwan.json", function(topoData){
         bindMap(topoData, cityAnimalCnt);
-        renderMap();
+        renderMap(cityAnimalCnt);
         console.log("renderAlready");
     });
 });
@@ -63,16 +63,19 @@ function cityAnimalCnts(dataSet, cityAnimalCnt){
             
             switch (animalType) {
                 case '狗':
-                    cityAnimalCnt[p].pieObj.dog = cityAnimalCnt[p].pieObj.dog+1;
+                    cityAnimalCnt[p].pieObj[0].cnt = cityAnimalCnt[p].pieObj[0].cnt+1;
                     break;
                 case '貓':
-                    cityAnimalCnt[p].pieObj.cat = cityAnimalCnt[p].pieObj.cat+1;
+                    cityAnimalCnt[p].pieObj[1].cnt = cityAnimalCnt[p].pieObj[1].cnt+1;
                     break;
                 default:
-                    cityAnimalCnt[p].pieObj.other = cityAnimalCnt[p].pieObj.other+1;
+                    cityAnimalCnt[p].pieObj[2].cnt = cityAnimalCnt[p].pieObj[2].cnt+1;
             }
         }
     }
+    cityAnimalCnt =cityAnimalCnt.sort(function(a,b){
+        return d3.descending(a.cnt, b.cnt);
+    })
     return cityAnimalCnt;
 }
 
@@ -142,12 +145,27 @@ function unique(array){
 
 
 
-function renderMap(){
+function renderMap(dataSet){
     var fScale = d3.scale.category20c();
+    var color = d3.scale
+              .linear()
+              .domain([d3.min(dataSet, function(d){
+                        return +d.cnt;
+                    }),
+                       d3.max(dataSet, function(d){
+                        return +d.cnt;
+                    })])
+              .range(['#ffc4c4','#ed4444']);
+    console.log(color(50));
+    
     d3.selectAll("path")
     .attr({
         fill:function(d,i){
-            return fScale(i);
+            if(typeof d.animalCnt === "undefined"){
+                return color(0);
+            }else{
+            return color(d.animalCnt);
+            }
         }
     })
     .on("click",function(d){
@@ -165,7 +183,7 @@ function renderMap(){
     })
     .on("mouseover",function(d){
         d3.select(this).attr({
-            fill:"lightgreen"
+            fill:"red"
         });
         var coordinates = d3.mouse(this);
         var x= coordinates[0];
@@ -178,14 +196,20 @@ function renderMap(){
         tooltip.select("#city").text(d.properties.C_Name);
         
         donutChart(d.pieObj);
-        tooltip.select("#industry").text("總:"+d.animalCnt+"狗:"+d.pieObj.dog+"貓:"+d.pieObj.cat+"其他:"+d.pieObj.other);
+//        tooltip.select("#industry").text("總:"+d.animalCnt+"狗:"+d.pieObj[0].cnt+"貓:"+d.pieObj[1].cnt+"其他:"+d.pieObj[2].cnt);
         d3.select("#tooltip").classed("hidden",false); 
         
         
     })
     .on("mouseout",function(d,i){
         d3.select(this).attr({
-            fill: fScale(i)
+            fill: function(d,i){
+                if(typeof d.animalCnt === "undefined"){
+                    return color(0);
+                }else{
+                    return color(d.animalCnt);
+                }
+            }
         });
         d3.select("#tooltip").classed("hidden",true);
     });
@@ -216,35 +240,51 @@ function bindMap(topoData, cityAnimalCnt){
 }
 
 function donutChart(pieData){
-    var width = 180;
-    var height = 180;
-    var radius = Math.min(width, height)/2;
+
+    bindPie(pieData);
+    renderPie(pieData);
     
-    console.log(pieData);
-    
-//    var color = d3.scaleOrdinal(d3.schemeCategory20b);
-//    var svg = d3.select('#pieChart')
-//          .append('svg')
-//          .attr('width', width)
-//          .attr('height', height)
-//          .append('g')
-//          .attr('transform', 'translate(' + (width / 2) +
-//            ',' + (height / 2) + ')');
-//    
-//    var arc = d3.arc()
-//          .innerRadius(0)
-//          .outerRadius(radius);
-//
-//    var pie = d3.pie()
-//          .value(function(d) { return d.count; })
-//          .sort(null);
-//
-//    var path = svg.selectAll('path')
-//          .data(pie(dataset))
-//          .enter()
-//          .append('path')
-//          .attr('d', arc)
-//          .attr('fill', function(d) {
-//            return color(d.data.label);
-//          });
+    function bindPie(dataSet){
+            
+        var pie = d3.layout.pie()
+                    .value(function(d) { return d.cnt; });
+
+        var selection = d3.select("#pieChart")
+                          .selectAll("g.arc")
+                          .data(pie(dataSet));
+
+        var g_arc = selection.enter().append("g").attr("class","arc");
+        g_arc.append("path");
+        g_arc.append("text");
+        selection.exit().remove();
+    }
+    function renderPie(dataSet){
+        var outerR = 50;
+        var innerR = 0;
+        var arc = d3.svg.arc()
+                    .outerRadius(outerR)
+                    .innerRadius(innerR);
+            
+//        var fScale = d3.scale.category20();
+        var fScale =["rgb(28, 105, 206)","rgb(226, 112, 18)","rgb(9, 191, 27)"];
+            
+        d3.selectAll("g.arc")
+          .attr("transform","translate("+outerR+","+outerR+")")
+          .select("path")
+          .attr("d", arc)
+          .style("fill", function(d,i) { return fScale[i]; });
+            
+        d3.selectAll("g.arc")
+          .select("text")
+          .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })  //arc.centroid 計算並回傳此arc中心位置
+          .attr("text-anchor","middle")
+          .text(function(d){
+            if(d.data.cnt>0){
+                return d.data.cate+":\r\n"+d.data.cnt; 
+            }else{
+                return "";
+            }
+          })
+            
+    }
 }
