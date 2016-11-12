@@ -40,7 +40,8 @@ d3.json("animalOpenData.json", function (dataSet) {
         });
     }
     cityAnimalCnt = cityAnimalCnts(dataSet, cityAnimalCnt);
-
+    console.log(cityAnimalCnt);
+    
     //Ｍap Chart
     d3.json("topoTaiwan.json", function (topoData) {
         bindMap(topoData, cityAnimalCnt);
@@ -158,6 +159,10 @@ function cityAnimalCnts(dataSet, cityAnimalCnt){
     cityAnimalCnt = cityAnimalCnt.sort(function (a, b) {
         return d3.descending(a.cnt, b.cnt);
     })
+    for (var i=0; i<cityAnimalCnt.length; i++){
+        cityAnimalCnt[i].index = i;
+    }
+    
     return cityAnimalCnt;
 }
 
