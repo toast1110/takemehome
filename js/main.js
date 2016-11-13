@@ -411,7 +411,9 @@ function bindBar(dataSet){
                 return d.y0 + d.y;
             })]).nice()
             .rangeRound([60, 460]);
-    
+    var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("bottom");
     
     var layer = d3.select("#barChart")
                 .selectAll(".layer")
@@ -431,7 +433,7 @@ function bindBar(dataSet){
             height: x.rangeBand()-1,
             width: function(d){return y(d.y + d.y0)-y(d.y0)}
         });
-    console.log(layers[0]);
+    
     d3.select("#barChart")
       .selectAll("text")
       .data(layers[0]).enter()
@@ -439,10 +441,6 @@ function bindBar(dataSet){
 //      .exit().remove()
       .attr({
         x: 5,
-//        y: function(d,i){
-//            console.log(i);
-//            return 66+27*i;
-//        },
         y:function(d){return x(d.x)+20;},
         fill:"#282828",
 //        stroke: "#FFFFFF",
@@ -450,6 +448,13 @@ function bindBar(dataSet){
         "font-family": "arial"
       })
       .text(function(d){return d.x});
+    
+    d3.select("#barChart")
+      .append("g")
+      .attr("class", "axis")
+      .attr("transform", "translate(0,400)")
+      .call(yAxis);
+    
 }
 
 function update(dataSet, filteredName){

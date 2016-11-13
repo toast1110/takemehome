@@ -141,3 +141,13 @@ g.arc text {
     padding: 50x
     margin: 5px;
 }
+.axis, .axis--y{
+    fill: black;
+/*    stroke: black;*/
+    shape-rendering: auto;
+}
+.axis text{
+    font-size: 12px;
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    stroke: black;
+}
