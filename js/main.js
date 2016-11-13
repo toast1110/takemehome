@@ -446,7 +446,7 @@ function bindBar(dataSet){
         y:function(d){return x(d.x)+20;},
         fill:"#282828",
 //        stroke: "#FFFFFF",
-        "font-size": 20,
+        "font-size": 15,
         "font-family": "arial"
       })
       .text(function(d){return d.x});
