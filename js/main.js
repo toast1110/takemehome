@@ -431,6 +431,15 @@ function bindBar(dataSet){
             },
             y:function(d){return x(d.x);},
             height: x.rangeBand()-1,
+            width: 0
+        })
+        .transition().duration(1000)
+        .attr({
+            x:function(d){
+                return y(d.y0);
+            },
+            y:function(d){return x(d.x);},
+            height: x.rangeBand()-1,
             width: function(d){return y(d.y + d.y0)-y(d.y0)}
         });
     
@@ -449,11 +458,11 @@ function bindBar(dataSet){
       })
       .text(function(d){return d.x});
     
-    d3.select("#barChart")
-      .append("g")
-      .attr("class", "axis")
-      .attr("transform", "translate(0,400)")
-      .call(yAxis);
+//    d3.select("#barChart")
+//      .append("g")
+//      .attr("class", "axis")
+//      .attr("transform", "translate(0,400)")
+//      .call(yAxis);
     
 }
 
